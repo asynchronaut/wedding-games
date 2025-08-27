@@ -33,11 +33,13 @@
             display: grid;
             grid-template-rows: repeat(6, 1fr);
             gap: 2px;
-            margin: 20px 0;
+            margin: 20px auto;
             padding: 20px;
             background: white;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            width: fit-content;
+            max-width: 100%;
         }
 
         .word-row {
@@ -47,8 +49,8 @@
         }
 
         .letter-box {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border: 2px solid #d1d5db;
             display: flex;
             align-items: center;
@@ -59,6 +61,7 @@
             background: white;
             border-radius: 8px;
             transition: all 0.3s ease;
+            justify-self: center;
         }
 
         .letter-box.filled {
@@ -212,13 +215,13 @@
     <button class="new-game" onclick="newGame()">New Game</button>
 
     <script>
-        // Wedding-themed word list (only 5-letter words!)
-        const WORD_LIST = [
-            'MARRY', 'DANCE', 'BRIDE', 'GROOM', 'PARTY', 'TOAST', 'HAPPY', 'SWEET', 
-            'HEART', 'BLISS', 'UNITE', 'ROSES', 'MUSIC', 'SMILE', 'FAITH', 'HONOR', 
-            'DREAM', 'MAGIC', 'RINGS', 'VOWEL', 'ROYAL', 'GRACE', 'CHARM', 'LOVED',
-            'ADORE', 'CRUSH', 'SPARK', 'GLEAM', 'SHINE', 'PEACE', 'CLOSE', 'TRUST'
+        // Wedding-themed answer words (small list for quick games!)
+        const ANSWER_WORDS = [
+            'MARRY', 'DANCE', 'BRIDE', 'GROOM', 'PARTY', 'HEART', 'RINGS', 'LOVED'
         ];
+
+        // Will be populated from words.json
+        let validWords = new Set();
 
         let currentWord = '';
         let currentGuess = '';
@@ -228,7 +231,21 @@
                    { gamesPlayed: 0, gamesWon: 0 };
 
         function getRandomWord() {
-            return WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+            return ANSWER_WORDS[Math.floor(Math.random() * ANSWER_WORDS.length)];
+        }
+
+        // Load dictionary on startup
+        async function loadDictionary() {
+            try {
+                const response = await fetch('words.json');
+                const words = await response.json();
+                validWords = new Set(words.map(word => word.toUpperCase()));
+                console.log(`Loaded ${validWords.size} valid words`);
+            } catch (error) {
+                console.warn('Could not load dictionary, using permissive mode');
+                // Fallback: accept any 5-letter combination
+                validWords = null;
+            }
         }
 
         function createGameBoard() {
@@ -272,6 +289,14 @@
                 return;
             }
 
+            // Check if word is valid (if dictionary is loaded)
+            if (validWords && !validWords.has(currentGuess)) {
+                showMessage('Not a valid word!');
+                return;
+            }
+
+            // Save the current guess before we clear it
+            const guessToProcess = currentGuess;
             const currentRowElement = document.getElementById(`row-${currentRow}`);
             const boxes = currentRowElement.children;
             const letterCount = {};
@@ -284,18 +309,18 @@
             // First pass: mark correct letters
             const results = [];
             for (let i = 0; i < 5; i++) {
-                if (currentGuess[i] === currentWord[i]) {
+                if (guessToProcess[i] === currentWord[i]) {
                     results[i] = 'correct';
-                    letterCount[currentGuess[i]]--;
+                    letterCount[guessToProcess[i]]--;
                 }
             }
 
             // Second pass: mark present/absent letters
             for (let i = 0; i < 5; i++) {
                 if (results[i] !== 'correct') {
-                    if (letterCount[currentGuess[i]] > 0) {
+                    if (letterCount[guessToProcess[i]] > 0) {
                         results[i] = 'present';
-                        letterCount[currentGuess[i]]--;
+                        letterCount[guessToProcess[i]]--;
                     } else {
                         results[i] = 'absent';
                     }
@@ -306,11 +331,11 @@
             for (let i = 0; i < 5; i++) {
                 setTimeout(() => {
                     boxes[i].classList.add(results[i]);
-                    updateKeyboard(currentGuess[i], results[i]);
+                    updateKeyboard(guessToProcess[i], results[i]);
                 }, i * 100);
             }
 
-            if (currentGuess === currentWord) {
+            if (guessToProcess === currentWord) {
                 setTimeout(() => {
                     gameOver = true;
                     stats.gamesPlayed++;
@@ -335,12 +360,14 @@
             const keys = document.querySelectorAll('.key');
             keys.forEach(key => {
                 if (key.textContent === letter) {
+                    // Remove existing classes
                     key.classList.remove('correct', 'present', 'absent');
-                    // If letter is in the word (correct or present), make it green
-                    // If letter is not in the word (absent), make it dark
+                    
+                    // Add new class based on result
+                    // For wedding wordle: green if letter is in word, dark if not
                     if (result === 'correct' || result === 'present') {
                         key.classList.add('correct');
-                    } else {
+                    } else if (result === 'absent') {
                         key.classList.add('absent');
                     }
                 }
@@ -391,7 +418,6 @@
             });
             
             updateStatsDisplay();
-            console.log('New word:', currentWord); // For testing - remove in production
         }
 
         function saveStats() {
@@ -418,7 +444,9 @@
         });
 
         // Initialize game
-        newGame();
+        loadDictionary().then(() => {
+            newGame();
+        });
     </script>
 </body>
 </html>
