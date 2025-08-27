@@ -237,26 +237,34 @@
         // Load dictionary on startup
         async function loadDictionary() {
             try {
+                console.log('Attempting to load dictionary...');
                 const response = await fetch('words.json');
+                console.log('Fetch response:', response.status, response.statusText);
+                
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 const text = await response.text();
+                console.log('Loaded text, first 100 chars:', text.substring(0, 100));
                 
                 // Handle both JSON and plaintext formats
                 let words;
                 try {
                     // Try parsing as JSON first
                     words = JSON.parse(text);
+                    console.log('Parsed as JSON array with', words.length, 'items');
                 } catch {
                     // If that fails, treat as plaintext (one word per line)
+                    console.log('Failed JSON parse, treating as plaintext');
                     words = text.trim().split('\n').map(word => word.trim().toUpperCase()).filter(word => word.length === 5);
+                    console.log('Parsed as plaintext,', words.length, '5-letter words found');
                 }
                 
                 validWords = new Set(words.map(word => word.toUpperCase()));
-                console.log(`Loaded ${validWords.size} valid words`);
+                console.log(`Successfully loaded ${validWords.size} valid words`);
             } catch (error) {
-                console.warn('Could not load dictionary:', error.message);
+                console.error('Dictionary load failed:', error);
+                console.log('Falling back to permissive mode (any 5 letters accepted)');
                 // Fallback: accept any 5-letter combination
                 validWords = null;
             }
