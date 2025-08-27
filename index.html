@@ -32,7 +32,7 @@
         .game-board {
             display: grid;
             grid-template-rows: repeat(6, 1fr);
-            gap: 5px;
+            gap: 2px;
             margin: 20px 0;
             padding: 20px;
             background: white;
@@ -43,7 +43,7 @@
         .word-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
+            gap: 2px;
         }
 
         .letter-box {
@@ -212,12 +212,12 @@
     <button class="new-game" onclick="newGame()">New Game</button>
 
     <script>
-        // Wedding-themed word list (you can customize these!)
+        // Wedding-themed word list (only 5-letter words!)
         const WORD_LIST = [
-            'LOVE', 'RING', 'MARRY', 'DANCE', 'BRIDE', 'GROOM', 'VOWS', 'KISS',
-            'PARTY', 'TOAST', 'HAPPY', 'SWEET', 'HEART', 'BLISS', 'UNITE',
-            'ROSES', 'MUSIC', 'SMILE', 'FAITH', 'HONOR', 'DREAM', 'MAGIC',
-            'BRIDAL', 'CHAPEL', 'FLOWER', 'SACRED', 'GOLDEN', 'SILVER'
+            'MARRY', 'DANCE', 'BRIDE', 'GROOM', 'PARTY', 'TOAST', 'HAPPY', 'SWEET', 
+            'HEART', 'BLISS', 'UNITE', 'ROSES', 'MUSIC', 'SMILE', 'FAITH', 'HONOR', 
+            'DREAM', 'MAGIC', 'RINGS', 'VOWEL', 'ROYAL', 'GRACE', 'CHARM', 'LOVED',
+            'ADORE', 'CRUSH', 'SPARK', 'GLEAM', 'SHINE', 'PEACE', 'CLOSE', 'TRUST'
         ];
 
         let currentWord = '';
@@ -336,7 +336,13 @@
             keys.forEach(key => {
                 if (key.textContent === letter) {
                     key.classList.remove('correct', 'present', 'absent');
-                    key.classList.add(result);
+                    // If letter is in the word (correct or present), make it green
+                    // If letter is not in the word (absent), make it dark
+                    if (result === 'correct' || result === 'present') {
+                        key.classList.add('correct');
+                    } else {
+                        key.classList.add('absent');
+                    }
                 }
             });
         }
