@@ -238,11 +238,25 @@
         async function loadDictionary() {
             try {
                 const response = await fetch('words.json');
-                const words = await response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const text = await response.text();
+                
+                // Handle both JSON and plaintext formats
+                let words;
+                try {
+                    // Try parsing as JSON first
+                    words = JSON.parse(text);
+                } catch {
+                    // If that fails, treat as plaintext (one word per line)
+                    words = text.trim().split('\n').map(word => word.trim().toUpperCase()).filter(word => word.length === 5);
+                }
+                
                 validWords = new Set(words.map(word => word.toUpperCase()));
                 console.log(`Loaded ${validWords.size} valid words`);
             } catch (error) {
-                console.warn('Could not load dictionary, using permissive mode');
+                console.warn('Could not load dictionary:', error.message);
                 // Fallback: accept any 5-letter combination
                 validWords = null;
             }
@@ -327,13 +341,33 @@
                 }
             }
 
+            // Track the best result for each letter for keyboard coloring
+            const keyboardResults = {};
+            for (let i = 0; i < 5; i++) {
+                const letter = guessToProcess[i];
+                const result = results[i];
+                
+                // Priority: correct > present > absent
+                if (!keyboardResults[letter] || 
+                    (result === 'correct') ||
+                    (result === 'present' && keyboardResults[letter] === 'absent')) {
+                    keyboardResults[letter] = result;
+                }
+            }
+
             // Apply colors with animation
             for (let i = 0; i < 5; i++) {
                 setTimeout(() => {
                     boxes[i].classList.add(results[i]);
-                    updateKeyboard(guessToProcess[i], results[i]);
                 }, i * 100);
             }
+
+            // Update keyboard with best results after all animations
+            setTimeout(() => {
+                for (const [letter, result] of Object.entries(keyboardResults)) {
+                    updateKeyboard(letter, result);
+                }
+            }, 500);
 
             if (guessToProcess === currentWord) {
                 setTimeout(() => {
@@ -342,14 +376,14 @@
                     stats.gamesWon++;
                     saveStats();
                     showMessage('Congratulations! 🎉', 'win');
-                }, 500);
+                }, 600);
             } else if (currentRow === 5) {
                 setTimeout(() => {
                     gameOver = true;
                     stats.gamesPlayed++;
                     saveStats();
                     showMessage(`Game over! The word was: ${currentWord}`, 'lose');
-                }, 500);
+                }, 600);
             }
 
             currentRow++;
