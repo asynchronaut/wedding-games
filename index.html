@@ -12,6 +12,7 @@
             padding: 20px;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
+            position: relative;
         }
 
         h1 {
@@ -29,6 +30,149 @@
             font-style: italic;
         }
 
+        /* Rules Button Styles */
+        .rules-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #d1d5db;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .rules-button:hover {
+            background: #f3f4f6;
+            transform: scale(1.1);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 450px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-title {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5em;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .close-button:hover {
+            color: #2c3e50;
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .rule-section {
+            margin-bottom: 25px;
+        }
+
+        .rule-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .rule-text {
+            color: #4b5563;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        /* Example Letters Styles */
+        .example-letters {
+            display: flex;
+            gap: 5px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        .example-letter {
+            width: 45px;
+            height: 45px;
+            border: 2px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .example-letter.correct {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .example-letter.present {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+
+        .example-letter.absent {
+            background: #6b7280;
+            color: white;
+            border-color: #6b7280;
+        }
+
+        /* Game Board Styles */
         .game-board {
             display: grid;
             grid-template-rows: repeat(6, 1fr);
@@ -64,29 +208,54 @@
             justify-self: center;
         }
 
+        @media (max-width: 400px) {
+            .letter-box {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
+            }
+        }
+
         .letter-box.filled {
             border-color: #6b7280;
             background: #f9fafb;
+            animation: pop 0.1s ease-in-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .letter-box.correct {
             background: #10b981;
             color: white;
             border-color: #10b981;
+            animation: flip 0.5s ease-in-out;
         }
 
         .letter-box.present {
             background: #f59e0b;
             color: white;
             border-color: #f59e0b;
+            animation: flip 0.5s ease-in-out;
         }
 
         .letter-box.absent {
             background: #6b7280;
             color: white;
             border-color: #6b7280;
+            animation: flip 0.5s ease-in-out;
         }
 
+        @keyframes flip {
+            0% { transform: rotateX(0); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0); }
+        }
+
+        /* Keyboard Styles */
         .keyboard {
             margin: 20px 0;
         }
@@ -110,8 +279,13 @@
             min-width: 30px;
         }
 
-        .key:hover {
+        .key:hover:not(.correct):not(.present):not(.absent) {
             background: #d1d5db;
+            transform: scale(1.05);
+        }
+
+        .key:active {
+            transform: scale(0.95);
         }
 
         .key.wide {
@@ -119,25 +293,114 @@
             font-size: 12px;
         }
 
-        .key.correct { background: #10b981; color: white; }
-        .key.present { background: #f59e0b; color: white; }
-        .key.absent { background: #6b7280; color: white; }
+        .key.correct { 
+            background: #10b981; 
+            color: white; 
+        }
+        
+        .key.present { 
+            background: #f59e0b; 
+            color: white; 
+        }
+        
+        .key.absent { 
+            background: #6b7280; 
+            color: white; 
+        }
 
+        /* Message Styles */
         .message {
             text-align: center;
             margin: 20px 0;
             font-size: 1.2em;
             font-weight: bold;
             min-height: 30px;
+            transition: all 0.3s ease;
         }
 
-        .message.win { color: #10b981; }
-        .message.lose { color: #ef4444; }
+        .message.win { 
+            color: #10b981;
+            animation: celebrate 0.5s ease-in-out;
+        }
+        
+        .message.lose { 
+            color: #ef4444; 
+        }
+
+        .message.error {
+            color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
     </style>
 </head>
 <body>
     <h1>💕 Wedding Wordle</h1>
     <p class="subtitle">Your unique word for today - compare with other guests!</p>
+    
+    <button class="rules-button" onclick="showRules()" title="How to Play">?</button>
+    
+    <div class="modal-overlay hidden" id="rules-modal" onclick="hideRulesIfClickOutside(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">How to Play</h2>
+                <button class="close-button" onclick="hideRules()">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="rule-section">
+                    <div class="rule-title">Goal</div>
+                    <div class="rule-text">Guess your 5-letter wedding word in 6 tries!</div>
+                </div>
+                
+                <div class="rule-section">
+                    <div class="rule-title">How it works</div>
+                    <div class="rule-text">After each guess, the tiles change color to show how close you are:</div>
+                    
+                    <div class="example-letters">
+                        <div class="example-letter correct">L</div>
+                        <div class="example-letter">O</div>
+                        <div class="example-letter">V</div>
+                        <div class="example-letter">E</div>
+                        <div class="example-letter">S</div>
+                    </div>
+                    <div class="rule-text"><strong>Green</strong> = Right letter, right spot!</div>
+                    
+                    <div class="example-letters">
+                        <div class="example-letter">H</div>
+                        <div class="example-letter present">E</div>
+                        <div class="example-letter">A</div>
+                        <div class="example-letter">R</div>
+                        <div class="example-letter">T</div>
+                    </div>
+                    <div class="rule-text"><strong>Yellow</strong> = Right letter, wrong spot</div>
+                    
+                    <div class="example-letters">
+                        <div class="example-letter">P</div>
+                        <div class="example-letter">A</div>
+                        <div class="example-letter absent">R</div>
+                        <div class="example-letter">T</div>
+                        <div class="example-letter">Y</div>
+                    </div>
+                    <div class="rule-text"><strong>Gray</strong> = Letter not in the word</div>
+                </div>
+                
+                <div class="rule-section">
+                    <div class="rule-title">💍 Wedding Special</div>
+                    <div class="rule-text">Each guest gets their own unique wedding-themed word! Once you solve yours, compare with other guests to see what words they got. It's a fun conversation starter!</div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="game-board" id="game-board">
         <!-- Game board will be generated by JavaScript -->
@@ -186,7 +449,8 @@
         // Wedding-themed answer words - each guest gets one!
         const ANSWER_WORDS = [
             'MARRY', 'DANCE', 'BRIDE', 'GROOM', 'PARTY', 'HEART', 'RINGS', 'LOVED',
-            'BLISS', 'UNITY', 'HAPPY', 'SWEET', 'ADORE', 'TRUST', 'CHARM', 'GRACE'
+            'BLISS', 'UNITY', 'HAPPY', 'SWEET', 'ADORE', 'TRUST', 'CHARM', 'GRACE',
+            'TOAST', 'CHEERS', 'VENUE', 'BLOOM', 'DREAM', 'FAITH', 'HONOR', 'PEACE'
         ];
 
         // Will be populated from words.json
@@ -216,22 +480,11 @@
             // Get or create a unique seed for this browser
             let sessionSeed = localStorage.getItem('weddingWordleSeed');
             if (!sessionSeed) {
-                sessionSeed = Math.random().toString(36).substring(2); // Random alphanumeric string
+                sessionSeed = Math.random().toString(36).substring(2, 15); // Random alphanumeric string
                 localStorage.setItem('weddingWordleSeed', sessionSeed);
-                console.log('Created new session seed:', sessionSeed);
             }
             
             const hashInput = sessionSeed + today;
-            
-            console.log('=== Word Selection Debug ===');
-            console.log('Date:', today);
-            console.log('Session seed:', sessionSeed);
-            console.log('Hash input:', hashInput);
-            console.log('Hash result:', simpleHash(hashInput));
-            console.log('Word index:', simpleHash(hashInput) % ANSWER_WORDS.length);
-            console.log('Selected word:', ANSWER_WORDS[simpleHash(hashInput) % ANSWER_WORDS.length]);
-            console.log('============================');
-            
             return simpleHash(hashInput);
         }
 
@@ -244,34 +497,29 @@
         // Load dictionary on startup
         async function loadDictionary() {
             try {
-                console.log('Attempting to load dictionary...');
                 const response = await fetch('words.json');
-                console.log('Fetch response:', response.status, response.statusText);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 const text = await response.text();
-                console.log('Loaded text, first 100 chars:', text.substring(0, 100));
                 
                 // Handle both JSON and plaintext formats
                 let words;
                 try {
                     // Try parsing as JSON first
                     words = JSON.parse(text);
-                    console.log('Parsed as JSON array with', words.length, 'items');
                 } catch {
                     // If that fails, treat as plaintext (one word per line)
-                    console.log('Failed JSON parse, treating as plaintext');
-                    words = text.trim().split('\n').map(word => word.trim().toUpperCase()).filter(word => word.length === 5);
-                    console.log('Parsed as plaintext,', words.length, '5-letter words found');
+                    words = text.trim().split(/[\r\n]+/).map(word => word.trim().toUpperCase()).filter(word => word.length === 5);
                 }
                 
                 validWords = new Set(words.map(word => word.toUpperCase()));
-                console.log(`Successfully loaded ${validWords.size} valid words`);
+                // Also add all answer words to valid words
+                ANSWER_WORDS.forEach(word => validWords.add(word));
+                
             } catch (error) {
-                console.error('Dictionary load failed:', error);
-                console.log('Falling back to permissive mode (any 5 letters accepted)');
+                console.warn('Dictionary not found, using permissive mode');
                 // Fallback: accept any 5-letter combination
                 validWords = null;
             }
@@ -314,13 +562,19 @@
 
         function submitGuess() {
             if (currentGuess.length !== 5) {
-                showMessage('Word must be 5 letters long!');
+                showMessage('Word must be 5 letters long!', 'error');
                 return;
             }
 
             // Check if word is valid (if dictionary is loaded)
             if (validWords && !validWords.has(currentGuess)) {
-                showMessage('Not a valid word!');
+                showMessage('Not a valid word!', 'error');
+                // Shake the current row
+                const currentRowElement = document.getElementById(`row-${currentRow}`);
+                currentRowElement.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    currentRowElement.style.animation = '';
+                }, 500);
                 return;
             }
 
@@ -387,7 +641,7 @@
             if (guessToProcess === currentWord) {
                 setTimeout(() => {
                     gameOver = true;
-                    showMessage(`🎉 You got "${currentWord}"! Ask other guests what word they got!`, 'win');
+                    showMessage(`🎉 Congratulations! You got "${currentWord}"! Ask other guests what word they got!`, 'win');
                     saveGameState();
                 }, 600);
             } else if (currentRow === 5) {
@@ -411,15 +665,16 @@
             const keys = document.querySelectorAll('.key');
             keys.forEach(key => {
                 if (key.textContent === letter) {
-                    // Remove existing classes
-                    key.classList.remove('correct', 'present', 'absent');
+                    const currentClass = key.classList.contains('correct') ? 'correct' :
+                                        key.classList.contains('present') ? 'present' :
+                                        key.classList.contains('absent') ? 'absent' : null;
                     
-                    // Add new class based on result
-                    // For wedding wordle: green if letter is in word, dark if not
-                    if (result === 'correct' || result === 'present') {
-                        key.classList.add('correct');
-                    } else if (result === 'absent') {
-                        key.classList.add('absent');
+                    // Only update if new result has higher priority
+                    if (!currentClass || 
+                        (result === 'correct') ||
+                        (result === 'present' && currentClass === 'absent')) {
+                        key.classList.remove('correct', 'present', 'absent');
+                        key.classList.add(result);
                     }
                 }
             });
@@ -476,8 +731,7 @@
                 const gameState = JSON.parse(saved);
                 
                 // Check if saved state is from today
-                if (gameState.date !== today) {
-                    console.log('Saved game is from different date, starting fresh');
+                if (gameState.date !== today || gameState.word !== currentWord) {
                     localStorage.removeItem('weddingWordleState');
                     return false;
                 }
@@ -487,11 +741,9 @@
                 currentRow = gameState.currentRow || 0;
                 gameOver = gameState.gameOver || false;
                 
-                console.log('Restored game state:', gameState);
                 return true;
                 
             } catch (error) {
-                console.log('Error loading game state:', error);
                 localStorage.removeItem('weddingWordleState');
                 return false;
             }
@@ -539,31 +791,35 @@
                     boxes[i].classList.add('filled', results[i]);
                 }
 
-                // Update keyboard colors (with priority logic)
-                const keyboardResults = {};
+                // Update keyboard colors
                 for (let i = 0; i < 5; i++) {
-                    const letter = guess[i];
-                    const result = results[i];
-                    
-                    if (!keyboardResults[letter] || 
-                        (result === 'correct') ||
-                        (result === 'present' && keyboardResults[letter] === 'absent')) {
-                        keyboardResults[letter] = result;
-                    }
-                }
-
-                for (const [letter, result] of Object.entries(keyboardResults)) {
-                    updateKeyboard(letter, result);
+                    updateKeyboard(guess[i], results[i]);
                 }
             }
             
             // Show final message if game was over
             if (gameOver) {
                 if (guesses.length > 0 && guesses[guesses.length - 1] === currentWord) {
-                    showMessage(`🎉 You got "${currentWord}"! Ask other guests what word they got!`, 'win');
+                    showMessage(`🎉 Congratulations! You got "${currentWord}"! Ask other guests what word they got!`, 'win');
                 } else {
                     showMessage(`Your word was "${currentWord}" - compare with other guests!`, 'lose');
                 }
+            }
+        }
+
+        function showRules() {
+            document.getElementById('rules-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function hideRules() {
+            document.getElementById('rules-modal').classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        function hideRulesIfClickOutside(event) {
+            if (event.target === event.currentTarget) {
+                hideRules();
             }
         }
 
@@ -576,7 +832,6 @@
             if (stateLoaded) {
                 // Restore previous game state
                 restoreGameBoard();
-                console.log('Game state restored from localStorage');
             } else {
                 // Start fresh game
                 currentGuess = '';
@@ -593,18 +848,29 @@
                 keys.forEach(key => {
                     key.classList.remove('correct', 'present', 'absent');
                 });
-                
-                console.log('Started fresh game');
             }
         }
 
         // Keyboard event listener
         document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+            
+            // Don't interfere with modal when it's open
+            if (!document.getElementById('rules-modal').classList.contains('hidden')) {
+                if (e.key === 'Escape') {
+                    hideRules();
+                }
+                return;
+            }
+            
             if (e.key === 'Enter') {
+                e.preventDefault();
                 handleKeyPress('Enter');
             } else if (e.key === 'Backspace') {
+                e.preventDefault();
                 handleKeyPress('Backspace');
-            } else if (e.key.match(/[a-zA-Z]/)) {
+            } else if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
+                e.preventDefault();
                 handleKeyPress(e.key.toUpperCase());
             }
         });
