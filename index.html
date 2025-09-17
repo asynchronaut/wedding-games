@@ -22,8 +22,25 @@
             --color-modal-overlay: rgba(0, 0, 0, 0.5);
         }
 
+        [data-theme="dark"] {
+            --color-correct: #6baa64;
+            --color-present: #cab458;
+            --color-absent: #3a3a3c;
+            --color-background: #121213;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #9ca3af;
+            --color-key-bg: #818384;
+            --color-key-text: #ffffff;
+            --color-border: #3a3a3c;
+            --color-modal-bg: #121213;
+            --color-modal-overlay: rgba(255, 255, 255, 0.1);
+        }
+
         @media (prefers-color-scheme: dark) {
-            :root {
+            :root:not([data-theme="light"]) {
+                --color-correct: #6baa64;
+                --color-present: #cab458;
+                --color-absent: #3a3a3c;
                 --color-background: #121213;
                 --color-text-primary: #ffffff;
                 --color-text-secondary: #9ca3af;
@@ -84,11 +101,16 @@
         }
 
         /* Rules Button */
-        .rules-button {
+        .header-buttons {
             position: absolute;
             top: 50%;
             right: 1rem;
             transform: translateY(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .rules-button, .theme-toggle {
             width: 30px;
             height: 30px;
             background: transparent;
@@ -100,6 +122,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .theme-toggle {
+            font-size: 1em;
         }
 
         /* Modal Styles */
@@ -413,7 +439,10 @@
     <div class="header">
         <h1>ANDY + HEATHER WEDDING WORDLE</h1>
         <p class="subtitle">Compare your unique word with other guests!</p>
-        <button class="rules-button" onclick="showRules()" title="How to Play">?</button>
+        <div class="header-buttons">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+            <button class="rules-button" onclick="showRules()" title="How to Play">?</button>
+        </div>
     </div>
     
     <div class="modal-overlay hidden" id="rules-modal" onclick="hideRulesIfClickOutside(event)">
@@ -533,7 +562,7 @@
             'BLISS', 'UNITY', 'HAPPY', 'SWEET', 'ADORE', 'TRUST', 'CHARM', 'GRACE',
             'TOAST', 'CHEERS', 'VENUE', 'BLOOM', 'DREAM', 'HONOR', 'PEACE', 'ALTAR',
             'SHINE', 'SMILE', 'LAUGH', 'SPARK', 'FLAME', 'LIGHT', 'MAGIC', 'DRESS',
-			'UNION', 'LOYAL'
+            'UNION', 'LOYAL'
         ];
 
         let validWords = new Set();
@@ -853,6 +882,40 @@
             }
         }
 
+        function toggleTheme() {
+            const root = document.documentElement;
+            const currentTheme = root.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                // Currently forced dark, switch to light
+                root.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else if (currentTheme === 'light') {
+                // Currently forced light, switch to dark
+                root.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                // Currently following system, switch to opposite of what's showing
+                const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (isDarkMode) {
+                    // System is dark, switch to light
+                    root.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    // System is light, switch to dark
+                    root.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            }
+        }
+
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        }
+
         function showRules() {
             document.getElementById('rules-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -924,6 +987,7 @@
         });
 
         // Initialize game
+        loadThemePreference();
         loadDictionary().then(() => {
             initGame();
         });
