@@ -612,13 +612,19 @@
         }
 
         function getWordSeed() {
-            // For the wedding, we just need a unique seed per browser/device
+            // Include date so testers get a fresh word on the wedding day
+            const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            
+            // Get or create a unique seed for this browser
             let sessionSeed = localStorage.getItem('weddingWordleSeed');
             if (!sessionSeed) {
                 sessionSeed = Math.random().toString(36).substring(2, 15);
                 localStorage.setItem('weddingWordleSeed', sessionSeed);
             }
-            return simpleHash(sessionSeed);
+            
+            // Combine session seed with date for daily rotation
+            const hashInput = sessionSeed + today;
+            return simpleHash(hashInput);
         }
 
         function getRandomWord() {
@@ -819,7 +825,9 @@
         }
 
         function saveGameState() {
+            const today = new Date().toISOString().slice(0, 10);
             const gameState = {
+                date: today,
                 word: currentWord,
                 guesses: guesses,
                 currentRow: currentRow,
@@ -829,6 +837,7 @@
         }
 
         function loadGameState() {
+            const today = new Date().toISOString().slice(0, 10);
             const saved = localStorage.getItem('weddingWordleState');
             
             if (!saved) return false;
@@ -836,7 +845,8 @@
             try {
                 const gameState = JSON.parse(saved);
                 
-                if (gameState.word !== currentWord) {
+                // Check if it's a new day or different word
+                if (gameState.date !== today || gameState.word !== currentWord) {
                     localStorage.removeItem('weddingWordleState');
                     return false;
                 }
